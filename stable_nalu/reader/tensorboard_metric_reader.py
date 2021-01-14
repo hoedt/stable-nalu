@@ -56,7 +56,7 @@ class TensorboardMetricReader:
         current_epoch = None
         current_logged_step = None
 
-        for e in tf.train.summary_iterator(filename):
+        for e in tf.compat.v1.train.summary_iterator(filename):
             step = e.step - self.step_start
 
             for v in e.summary.value:

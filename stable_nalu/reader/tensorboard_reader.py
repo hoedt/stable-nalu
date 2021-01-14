@@ -31,7 +31,7 @@ class TensorboardReader:
             filename = path.join(self._sourcedir, subdir, logfiles[0])
 
             if self._auto_open:
-                reader = tf.train.summary_iterator(filename)
+                reader = tf.compat.v1.train.summary_iterator(filename)
                 yield (subdir, filename, reader)
             else:
                 yield (subdir, filename, None)
