@@ -56,7 +56,7 @@ print(f'  - verbose: {args.verbose}')
 print(f'  - max_iterations: {args.max_iterations}')
 
 # Prepear logging
-results_writer = stable_nalu.writer.ResultsWriter('simple_function_recurrent')
+# results_writer = stable_nalu.writer.ResultsWriter('simple_function_recurrent')
 summary_writer = stable_nalu.writer.SummaryWriter(
     f'simple_function_recurrent/{args.layer_type.lower()}_{args.operation.lower()}_{args.seed}'
 )
@@ -138,15 +138,15 @@ print(f'  - loss_valid_inter: {loss_valid_inter}')
 print(f'  - loss_valid_extra: {loss_valid_extra}')
 
 # save results
-results_writer.add({
-    'seed': args.seed,
-    'operation': args.operation,
-    'layer_type': args.layer_type,
-    'simple': args.simple,
-    'cuda': args.cuda,
-    'verbose': args.verbose,
-    'max_iterations': args.max_iterations,
-    'loss_train': loss_train,
-    'loss_valid_inter': loss_valid_inter,
-    'loss_valid_extra': loss_valid_extra
-})
+#results_writer.add({
+#    'seed': args.seed,
+#    'operation': args.operation,
+#    'layer_type': args.layer_type,
+#    'simple': args.simple,
+#    'cuda': args.cuda,
+#    'verbose': args.verbose,
+#    'max_iterations': args.max_iterations,
+#    'loss_train': loss_train,
+#    'loss_valid_inter': loss_valid_inter,
+#    'loss_valid_extra': loss_valid_extra
+#})

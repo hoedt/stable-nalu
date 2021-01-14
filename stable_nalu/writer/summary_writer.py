@@ -86,7 +86,7 @@ class SummaryWriterNamespace:
     def add_histogram(self, name, tensor, verbose_only=True):
         if torch.isnan(tensor).any():
             print(f'nan detected in {self._namespace}/{name}')
-            tensor = torch.where(torch.isnan(tensor), torch.tensor(0, dtype=tensor.dtype), tensor)
+#            tensor = torch.where(torch.isnan(tensor), torch.tensor(0, dtype=tensor.dtype), tensor)
             raise ValueError('nan detected')
 
         if self.is_log_iteration() and self.is_logging_enabled() and self.is_verbose(verbose_only):

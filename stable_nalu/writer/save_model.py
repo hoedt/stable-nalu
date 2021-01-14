@@ -13,4 +13,13 @@ else:
 def save_model(name, model):
     save_file = path.join(SAVE_DIR, name) + '.pth'
     os.makedirs(path.dirname(save_file), exist_ok=True)
+
+    def remove_writer(m):
+        # remove writers from ExtendedTorchModules
+        try:
+            del m.writer
+        except AttributeError:
+            pass
+
+    model.apply(remove_writer)
     torch.save(model, save_file)

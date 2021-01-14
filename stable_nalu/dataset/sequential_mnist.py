@@ -16,7 +16,7 @@ class ItemShape(NamedTuple):
 class OPERATIONS:
     @staticmethod
     def sum(seq):
-        return OPERATIONS.sum(seq)
+        return np.sum(seq, keepdims=True).reshape(-1, 1)
 
     @staticmethod
     def cumsum(seq):
@@ -55,25 +55,9 @@ class SequentialMnistDataset:
         self._rng = np.random.RandomState(seed)
         self._mnist_digits = set(mnist_digits)
 
-    def is_cum_task():
-        if self._operation == OPERATIONS.sum:
-            return False
-        elif self._operation == OPERATIONS.cumsum:
-            return True
-        elif self._operation == OPERATIONS.prod:
-            return False
-        elif self._operation == OPERATIONS.cumprod:
-            return True
-        elif self._operation == OPERATIONS.div:
-            return False
-        elif self._operation == OPERATIONS.cumdiv:
-            return True
-        else:
-            raise ValueError('bad operation')
-
     def get_item_shape(self):
         if self._operation == OPERATIONS.sum:
-            return ItemShape((None, 28, 28), (None, 1))
+            return ItemShape((None, 28, 28), (1, 1))
         elif self._operation == OPERATIONS.cumsum:
             return ItemShape((None, 28, 28), (None, 1))
         elif self._operation == OPERATIONS.prod:

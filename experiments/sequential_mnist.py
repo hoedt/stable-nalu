@@ -257,7 +257,8 @@ dataset = stable_nalu.dataset.SequentialMnistDataset(
     operation=args.operation,
     use_cuda=args.cuda,
     seed=args.seed,
-    mnist_digits=args.mnist_digits
+    mnist_digits=args.mnist_digits,
+    num_workers=2  # debugging
 )
 dataset_train = dataset.fork(seq_length=args.interpolation_length, subset='train').dataloader(shuffle=True)
 # Seeds are from random.org
