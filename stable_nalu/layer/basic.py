@@ -48,7 +48,7 @@ INITIALIZATIONS = {
 class BasicLayer(ExtendedTorchModule):
     ACTIVATIONS = set(ACTIVATIONS.keys())
 
-    def __init__(self, in_features, out_features, activation='linear', bias=True, **kwargs):
+    def __init__(self, in_features, out_features, activation='linear', bias=False, **kwargs):
         super().__init__('basic', **kwargs)
         self.in_features = in_features
         self.out_features = out_features
