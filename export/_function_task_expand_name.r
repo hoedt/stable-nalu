@@ -5,6 +5,7 @@ model.full.to.short = c(
   'linear'='Linear',
   'relu'='ReLU',
   'relu6'='ReLU6',
+  'mcfc'='MCFC',
   'nac'='$\\mathrm{NAC}_{+}$',
   'nac-nac-n'='$\\mathrm{NAC}_{\\bullet}$',
   'posnac-nac-n'='$\\mathrm{NAC}_{\\bullet,\\sigma}$',
@@ -22,6 +23,7 @@ model.latex.to.exp = c(
   'Linear'='Linear',
   'ReLU'='ReLU',
   'ReLU6'='ReLU6',
+  'MCFC'='MCFC',
   '$\\mathrm{NAC}_{+}$'=TeX('$\\mathrm{NAC}_{+}$'),
   '$\\mathrm{NAC}_{+,R_z}$'=expression(paste("", "", plain(paste("NAC")), 
                                              phantom()[{
@@ -60,10 +62,10 @@ model.to.exp = function(v) {
 }
 
 operation.full.to.short = c(
-  'op-add'='$\\bm{+}$',
-  'op-sub'='$\\bm{-}$',
-  'op-mul'='$\\bm{\\times}$',
-  'op-div'='$\\bm{\\mathbin{/}}$',
+  'op-add'='$+$',
+  'op-sub'='$-$',
+  'op-mul'='$\\times$',
+  'op-div'='$\\mathbin{/}$',
   'op-squared'='$z^2$',
   'op-root'='$\\sqrt{z}$'
 )
@@ -169,7 +171,7 @@ expand.name = function (df) {
     )
   
   df.expand.name$name = as.factor(df.expand.name$name)
-  df.expand.name$operation = factor(df.expand.name$operation, c('$\\bm{\\times}$', '$\\bm{\\mathbin{/}}$', '$\\bm{+}$', '$\\bm{-}$', '$\\sqrt{z}$', '$z^2$'))
+  df.expand.name$operation = factor(df.expand.name$operation, c('$\\times$', '$\\mathbin{/}$', '$+$', '$-$', '$\\sqrt{z}$', '$z^2$'))
   df.expand.name$model = as.factor(df.expand.name$model)
   df.expand.name$interpolation.range = as.factor(df.expand.name$interpolation.range)
   df.expand.name$extrapolation.range = as.factor(df.expand.name$extrapolation.range)

@@ -37,7 +37,7 @@ eps = read_csv('../results/function_task_static_mse_expectation.csv') %>%
   select(operation, threshold)
 
 dat = expand.name(
-  read_csv('../results/function_task_static.csv', col_types=cols(sparse.error.max=col_double()))
+  read_csv('../results/function_static.csv', col_types=cols(sparse.error.max=col_double()))
 ) %>%
   merge(eps)
 
@@ -68,8 +68,8 @@ print(dat.last.rate)
 
 save.table(
   dat.last.rate %>% filter(
-    (operation %in% c('$\\bm{+}$', '$\\bm{-}$') & model %in% c('Linear', 'NAU', '$\\mathrm{NAC}_{+}$', 'NALU')) |
-    (operation %in% c('$\\bm{\\times}$') & model %in% c('NMU', '$\\mathrm{NAC}_{\\bullet}$', 'NALU'))
+    (operation %in% c('$+$', '$-$') & model %in% c('Linear', 'NAU', '$\\mathrm{NAC}_{+}$', 'NALU', 'MCFC')) |
+    (operation %in% c('$\\times$') & model %in% c('NMU', '$\\mathrm{NAC}_{\\bullet}$', 'NALU'))
   ),
   "function-task-static-defaults",
   "Shows the success-rate, when the model converged, and the sparsity error for all weight matrices, with 95\\% confidence interval. Each value is a summary of 100 different seeds.",
@@ -78,11 +78,11 @@ save.table(
 
 save.table(
   dat.last.rate %>% filter(
-    (operation %in% c('$\\bm{+}$', '$\\bm{-}$') & model %in% c('Linear', '$\\mathrm{NAC}_{+}$', 'NALU')) |
-    (operation %in% c('$\\bm{\\times}$', '$\\bm{\\mathbin{/}}$') & model %in% c('$\\mathrm{NAC}_{\\bullet}$', 'NALU'))
+    (operation %in% c('$+$', '$-$') & model %in% c('Linear', '$\\mathrm{NAC}_{+}$', 'NALU', 'MCFC')) |
+    (operation %in% c('$\\times$', '$\\mathbin{/}$') & model %in% c('$\\mathrm{NAC}_{\\bullet}$', 'NALU'))
   ),
   "function-task-static-defaults",
-  "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
+  "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
   "../paper/results/function_task_static_reproduce.tex"
 )
 
@@ -90,7 +90,7 @@ save.table(
 save.table(
   dat.last.rate,
   "function-task-static-defaults-all",
-  "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
+  "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
   "../paper/results/function_task_static_all.tex",
   longtable=T
 )
