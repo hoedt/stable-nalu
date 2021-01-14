@@ -21,6 +21,8 @@ class SimpleFunctionRecurrentNetwork(ExtendedTorchModule):
                 'h_t0': torch.nn.Parameter(torch.Tensor(self.hidden_size)),
                 'c_t0': torch.nn.Parameter(torch.Tensor(self.hidden_size))
             })
+        elif unit_name == 'MCLSTM':
+            self.zero_state = torch.nn.Parameter(torch.Tensor(self.hidden_size + 1))
         else:
             self.zero_state = torch.nn.Parameter(torch.Tensor(self.hidden_size))
 
@@ -31,7 +33,7 @@ class SimpleFunctionRecurrentNetwork(ExtendedTorchModule):
                                              **kwargs)
         self.output_layer = GeneralizedLayer(self.hidden_size, 1,
                                             'linear'
-                                                if unit_name in {'GRU', 'LSTM', 'RNN-tanh', 'RNN-ReLU'}
+                                                if unit_name in {'GRU', 'LSTM', 'MCLSTM', 'RNN-tanh', 'RNN-ReLU'}
                                                 else unit_name,
                                              writer=self.writer,
                                              name='output_layer',
@@ -60,13 +62,21 @@ class SimpleFunctionRecurrentNetwork(ExtendedTorchModule):
         else:
             h_tm1 = self.zero_state.repeat(x.size(0), 1)
 
+        if self.unit_name == 'MCLSTM':
+            auxiliaries = x.new_ones(*x.shape[:2], 1)
+            auxiliaries[:, -1] = -1
+
         for t in range(x.size(1)):
             x_t = x[:, t]
-            h_t = self.recurent_cell(x_t, h_tm1)
-            h_tm1 = h_t
+
+            if self.unit_name == 'MCLSTM':
+                h_t = self.recurent_cell(x_t, auxiliaries[:, t], h_tm1)
+            else:
+                h_t = self.recurent_cell(x_t, h_tm1)
+            h_tm1 = h_t[1] if self.unit_name == 'MCLSTM' else h_t
 
         # Grap the final hidden output and use as the output from the recurrent layer
-        z_1 = h_t[0] if self.unit_name == 'LSTM' else h_t
+        z_1 = h_t[0] if self.unit_name.endswith('LSTM') else h_t
         z_2 = self.output_layer(z_1)
         return z_2
 
