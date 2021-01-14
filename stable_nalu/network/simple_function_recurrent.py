@@ -32,9 +32,9 @@ class SimpleFunctionRecurrentNetwork(ExtendedTorchModule):
                                              name='recurrent_layer',
                                              **kwargs)
         self.output_layer = GeneralizedLayer(self.hidden_size, 1,
-                                            'linear'
-                                                if unit_name in {'GRU', 'LSTM', 'MCLSTM', 'RNN-tanh', 'RNN-ReLU'}
-                                                else unit_name,
+                                            'linear',
+                                            #     if unit_name in {'GRU', 'LSTM', 'MCLSTM', 'RNN-tanh', 'RNN-ReLU'}
+                                            #     else unit_name,
                                              writer=self.writer,
                                              name='output_layer',
                                              **kwargs)
