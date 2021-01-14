@@ -110,6 +110,12 @@ parser.add_argument('--regualizer-scaling-end',
                     default=2000000,
                     type=int,
                     help='Stop linear scaling at this global step.')
+parser.add_argument('--regualizer-shape',
+                    action='store',
+                    default='linear',
+                    choices=['squared', 'linear'],
+                    type=str,
+                    help='Use either a squared or linear shape for the bias and oob regualizer.')
 args = parser.parse_args()
 
 
@@ -179,7 +185,18 @@ dataset_valid_extrapolation = iter(dataset.fork(seq_length=1000, seed=8689336).d
 model = stable_nalu.network.SimpleFunctionRecurrentNetwork(
     args.layer_type,
     input_size=dataset.get_input_size(),
-    writer=summary_writer.every(1000) if args.verbose else None
+    writer=summary_writer.every(1000) if args.verbose else None,
+    first_layer=None,
+    nac_oob='clip',
+    regualizer_shape=args.regualizer_shape,
+    regualizer_z=args.regualizer_z,
+    mnac_epsilon=0.,
+    nac_mul='none',
+    nalu_bias=False,
+    nalu_two_nac=False,
+    nalu_two_gate=False,
+    nalu_mul='normal',
+    nalu_gate='normal',
 )
 if args.cuda:
     model.cuda()
