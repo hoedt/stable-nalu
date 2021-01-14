@@ -72,11 +72,17 @@ class SequentialMnistNetwork(ExtendedTorchModule):
         else:
             h_tm1 = self.zero_state.repeat(x.size(0), 1)
 
+        if self.unit_name == 'MCLSTM':
+            auxiliaries = x.new_ones(*x.shape[:2], 1)
+            auxiliaries[:, -1] = -1
+
         for t in range(x.size(1)):
             x_t = x[:, t]
             l_t = self.image2label(x_t)
 
-            if self.nac_mul == 'none' or self.nac_mul == 'mnac':
+            if self.unit_name == 'MCLSTM':
+                h_t = self.recurent_cell(l_t, auxiliaries[:, t], h_tm1)
+            elif self.nac_mul == 'none' or self.nac_mul == 'mnac':
                 h_t = self.recurent_cell(l_t, h_tm1)
             elif self.nac_mul == 'normal':
                 h_t = torch.exp(self.recurent_cell(

@@ -29,8 +29,7 @@ class MCLSTMCell(nn.Module):
         self.junction.reset_parameters()
         self.redistribution.reset_parameters()
 
-    def forward(self, xt_m, c):
-        xt_a = xt_m.new_ones((len(xt_m), self.aux_input_size))
+    def forward(self, xt_m, xt_a, c):
         j = self.junction(xt_a)
         r = self.redistribution(xt_a)
         o = self.out_gate(xt_a)
@@ -39,6 +38,7 @@ class MCLSTMCell(nn.Module):
         m_sys = torch.matmul(c.unsqueeze(-2), r).squeeze(-2)
         m_new = m_in + m_sys
         return o * m_new, (1 - o) * m_new
+        # return m_new, m_new
 
 
 def get_redistribution(kind: str,
