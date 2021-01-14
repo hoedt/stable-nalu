@@ -37,7 +37,7 @@ eps = read_csv('../results/function_task_recurrent_mse_expectation.csv') %>%
   select(operation, threshold)
 
 dat = expand.name(
-  read_csv('../results/function_recurrent_time.csv', col_types=cols(sparse.error.max=col_double()))
+  read_csv('../results/function_recurrent.csv', col_types=cols(sparse.error.max=col_double()))
 ) %>%
   merge(eps)
 
@@ -76,7 +76,7 @@ save.table(
   ),
   "function-task-recurrent-defaults",
   "Shows the success-rate, when the model converged, and the sparsity error for all weight matrices, with 95\\% confidence interval. Each value is a summary of 100 different seeds.",
-  "../paper/results/function_task_recurrent_time.tex"
+  "../paper/results/function_task_recurrent.tex"
 )
 
 save.table(
@@ -86,7 +86,7 @@ save.table(
   ),
   "function-task-recurrent-defaults",
   "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
-  "../paper/results/function_task_recurrent_time_reproduce.tex"
+  "../paper/results/function_task_recurrent_reproduce.tex"
 )
 
 # Check extra_latex_after option, https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf
@@ -94,6 +94,6 @@ save.table(
   dat.last.rate,
   "function-task-recurrent-defaults-all",
   "Comparison of the success-rate, when the model converged, and the sparsity error, with 95\\% confidence interval on the ``arithmetic datasets'' task. Each value is a summary of 100 different seeds.",
-  "../paper/results/function_task_recurrent_time_all.tex",
+  "../paper/results/function_task_recurrent_all.tex",
   longtable=T
 )

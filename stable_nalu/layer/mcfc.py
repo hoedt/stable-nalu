@@ -106,18 +106,3 @@ class PerfectProd(nn.Module):
 
     def forward(self, x):
         return torch.prod(2 * x[:, :-1], dim=-1, keepdim=True)
-
-
-class EnhancedLinear(nn.Module):
-
-    def __init__(self, in_features, out_features):
-        super().__init__()
-        self.fc = nn.Linear(in_features, out_features)
-
-    @torch.no_grad()
-    def reset_parameters(self):
-        nn.init.kaiming_uniform_(self.fc.weight, nonlinearity='linear')
-        nn.init.zeros_(self.fc.bias)
-
-    def forward(self, x):
-        return self.fc(torch.log(x)).exp()

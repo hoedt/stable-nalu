@@ -30,7 +30,9 @@ class SimpleFunctionStaticNetwork(ExtendedTorchModule):
             unit_name_2 = unit_name
 
         self.layer_2 = GeneralizedLayer(hidden_size, 1,
-                                        'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
+                                        'linear'
+                                        if unit_name_2 in BasicLayer.ACTIVATIONS
+                                        else unit_name_2,
                                         writer=self.writer,
                                         name='layer_2',
                                         eps=eps, **kwags)

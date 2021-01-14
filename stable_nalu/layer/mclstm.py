@@ -4,24 +4,27 @@ from torch import nn
 
 class MCLSTMCell(nn.Module):
 
-    def __init__(self, in_features: int, out_features: int):
+    def __init__(self, in_features: int, out_features: int,
+                 cumulative: bool = False, **kwargs):
         super().__init__()
         self.mass_input_size = in_features
         self.aux_input_size = 1
         self.hidden_size = out_features
         self.normaliser = nn.Softmax(dim=-1)
+        self.cumulative = cumulative
 
         self.out_gate = Gate(self.hidden_size, self.aux_input_size)
-        # NOTE: without normalised sigmoid here, there seem to be troubles!
-        self.junction = get_redistribution("gate",
+        self.junction = get_redistribution(kwargs.get('junct', "gate"),
                                            num_states=self.mass_input_size,
                                            num_features=self.aux_input_size,
                                            num_out=self.hidden_size,
                                            normaliser=self.normaliser)
-        self.redistribution = get_redistribution("linear",
+        self.redistribution = get_redistribution(kwargs.get('redist', 'linear'),
                                                  num_states=self.hidden_size,
                                                  num_features=self.aux_input_size,
                                                  normaliser=self.normaliser)
+        print(self.junction)
+        print(self.redistribution)
 
     def reset_parameters(self):
         self.out_gate.reset_parameters()
@@ -37,8 +40,10 @@ class MCLSTMCell(nn.Module):
         m_in = torch.matmul(xt_m.unsqueeze(-2), j).squeeze(-2)
         m_sys = torch.matmul(c.unsqueeze(-2), r).squeeze(-2)
         m_new = m_in + m_sys
-        return o * m_new, (1 - o) * m_new
-        # return m_new, m_new
+        if self.cumulative:
+            return m_new, m_new
+        else:
+            return o * m_new, (1 - o) * m_new
 
 
 def get_redistribution(kind: str,
@@ -170,9 +175,13 @@ class GateRedistribution(Redistribution):
         self.reset_parameters()
 
     def reset_parameters(self):
-        # TODO: account for effect normaliser
         nn.init.orthogonal_(self.fc.weight)
         nn.init.zeros_(self.fc.bias)
+
+        if self.num_states == self.num_out:
+            # identity matrix initialisation for output
+            with torch.no_grad():
+                self.fc.bias[0::(self.num_out + 1)] = 3
 
     def _compute(self, x: torch.Tensor) -> torch.Tensor:
         logits = self.fc(x)

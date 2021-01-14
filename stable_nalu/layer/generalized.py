@@ -2,6 +2,7 @@
 import torch
 
 from .basic import BasicLayer, BasicCell
+from .mcfc import MCFullyConnected, MultiplicativeLinear, PerfectProd, MulMCFC
 from .mclstm import MCLSTMCell
 
 from .nac import NACLayer, NACCell
@@ -128,7 +129,7 @@ class GeneralizedLayer(ExtendedTorchModule):
         out_features: number of outgoing features
         unit_name: name of the unit (e.g. NAC, Sigmoid, Tanh)
     """
-    UNIT_NAMES = set(unit_name_to_layer_class.keys()) | BasicLayer.ACTIVATIONS
+    UNIT_NAMES = set(unit_name_to_layer_class.keys()) | BasicLayer.ACTIVATIONS | {'MCFC', 'MulMCFC', 'MulLinear', 'perfect'}
 
     def __init__(self, in_features, out_features, unit_name, writer=None, name=None, **kwags):
         super().__init__('layer', name=name, writer=writer, **kwags)
@@ -141,6 +142,17 @@ class GeneralizedLayer(ExtendedTorchModule):
             self.layer = Layer(in_features, out_features,
                                writer=self.writer,
                                **kwags)
+        elif unit_name == 'MCFC':
+            kwags.update(writer=writer)
+            self.layer = MCFullyConnected(in_features, out_features, **kwags)
+        elif unit_name == 'MulLinear':
+            kwags.update(writer=writer)
+            self.layer = MultiplicativeLinear(in_features, out_features, **kwags)
+        elif unit_name == 'MulMCFC':
+            kwags.update(writer=writer)
+            self.layer = MulMCFC(in_features, out_features, **kwags)
+        elif unit_name == 'perfect':
+            self.layer = PerfectProd(in_features, out_features)
         else:
             self.layer = BasicLayer(in_features, out_features,
                                     activation=unit_name,
@@ -187,7 +199,7 @@ class GeneralizedCell(ExtendedTorchModule):
         elif unit_name == 'LSTM':
             self.cell = torch.nn.LSTMCell(input_size, hidden_size)
         elif unit_name == 'MCLSTM':
-            self.cell = MCLSTMCell(input_size, hidden_size)
+            self.cell = MCLSTMCell(input_size, hidden_size, **kwags)
         elif unit_name == 'RNN-tanh':
             self.cell = torch.nn.RNNCell(input_size, hidden_size,
                                          nonlinearity='tanh')

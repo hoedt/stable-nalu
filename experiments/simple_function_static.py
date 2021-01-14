@@ -177,6 +177,13 @@ parser.add_argument('--momentum',
                     default=0.0,
                     type=float,
                     help='Specify the nestrov momentum, only used with SGD')
+parser.add_argument('--clip-grad',
+                    default=0.,
+                    type=float,
+                    help='Specify gradient clipping value')
+parser.add_argument('--lr-schedule',
+                    action='store_true',
+                    help='Use learning rate scheduling')
 
 parser.add_argument('--no-cuda',
                     action='store_true',
@@ -237,6 +244,8 @@ print(f'  -')
 print(f'  - optimizer: {args.optimizer}')
 print(f'  - learning_rate: {args.learning_rate}')
 print(f'  - momentum: {args.momentum}')
+print(f'  - clipping: {args.clip_grad}')
+print(f'  - scheduling: {args.lr_schedule}')
 print(f'  -')
 print(f'  - cuda: {args.cuda}')
 print(f'  - name_prefix: {args.name_prefix}')
@@ -276,7 +285,10 @@ summary_writer = stable_nalu.writer.SummaryWriter(
     f'_s{args.seed}'
     f'_h{args.hidden_size}'
     f'_z{args.num_subsets}'
-    f'_lr-{args.optimizer}-{"%.5f" % args.learning_rate}-{args.momentum}',
+    f'_lr-{args.optimizer}-{"%.5f" % args.learning_rate}-{args.momentum}'
+    f'{"_clip-" + str(args.clip_grad) if args.clip_grad > 0 else ""}'
+    f'{"_sched" if args.lr_schedule else ""}'
+    f'_zerobias',
     remove_existing_data=args.remove_existing_data
 )
 
@@ -335,6 +347,7 @@ elif args.optimizer == 'sgd':
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum)
 else:
     raise ValueError(f'{args.optimizer} is not a valid optimizer algorithm')
+lr_schedule = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=args.learning_rate, max_lr=1, cycle_momentum=False)
 
 def test_model(data):
     with torch.no_grad(), model.no_internal_logging(), model.no_random():
@@ -385,12 +398,18 @@ for epoch_i, (x_train, t_train) in zip(range(args.max_iterations + 1), dataset_t
     # Optimize model
     if loss_train.requires_grad:
         loss_train.backward()
+        if args.clip_grad > 0:
+            torch.nn.utils.clip_grad_value_(model.parameters(), args.clip_grad)
         optimizer.step()
     model.optimize(loss_train_criterion)
+
+    if args.lr_schedule:
+        lr_schedule.step()
 
     # Log gradients if in verbose mode
     if args.verbose and epoch_i % 1000 == 0:
         model.log_gradients()
+
 
 # Compute validation loss
 loss_valid_inter = test_model(dataset_valid_interpolation_data)

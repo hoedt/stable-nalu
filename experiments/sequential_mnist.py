@@ -271,7 +271,7 @@ dataset = stable_nalu.dataset.SequentialMnistDataset(
     use_cuda=args.cuda,
     seed=args.seed,
     mnist_digits=args.mnist_digits,
-    num_workers=0  # debugging
+    num_workers=4
 )
 dataset_train = dataset.fork(seq_length=args.interpolation_length, subset='train').dataloader(shuffle=True)
 # Seeds are from random.org
@@ -305,6 +305,7 @@ model = stable_nalu.network.SequentialMnistNetwork(
     nalu_two_gate=args.nalu_two_gate,
     nalu_mul=args.nalu_mul,
     nalu_gate=args.nalu_gate,
+    cumulative=args.operation.startswith('cum')
 )
 model.reset_parameters()
 if args.cuda:
@@ -386,7 +387,7 @@ for epoch_i in range(0, args.max_epochs + 1):
 
         loss_train_criterion = criterion(y_train[:,seq_index,:], t_train[:,seq_index,:])
         loss_train_regualizer = args.regualizer * r_w_scale * regualizers['W'] + regualizers['g'] + args.regualizer_z * regualizers['z'] + args.regualizer_oob * regualizers['W-OOB']
-        loss_train_regualizer += args.mnist_regularizer * torch.mean(torch.abs(mnist_y_train))
+        loss_train_regualizer += args.mnist_regularizer * torch.mean(mnist_y_train ** 2) / 2
         loss_train = loss_train_criterion + loss_train_regualizer
 
         # Log loss
