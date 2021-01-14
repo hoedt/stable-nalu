@@ -6,6 +6,10 @@ from ..functional import sparsity_error
 from ..abstract import ExtendedTorchModule
 from ._abstract_recurrent_cell import AbstractRecurrentCell
 
+
+def _linear(x):
+    return x
+
 ACTIVATIONS = {
     'Tanh': torch.tanh,
     'Sigmoid': torch.sigmoid,
@@ -14,36 +18,47 @@ ACTIVATIONS = {
     'SELU': torch.selu,
     'ELU': torch.nn.functional.elu,
     'ReLU': torch.relu,
-    'linear': lambda x: x
+    'linear': _linear
 }
 
 INITIALIZATIONS = {
-    'Tanh': lambda W: torch.nn.init.xavier_uniform_(
-        W, gain=torch.nn.init.calculate_gain('tanh')),
-
-    'Sigmoid': lambda W: torch.nn.init.xavier_uniform_(
-        W, gain=torch.nn.init.calculate_gain('sigmoid')),
-
-    'ReLU6': lambda W: torch.nn.init.kaiming_uniform_(
-        W, nonlinearity='relu'),
-
-    'Softsign': lambda W: torch.nn.init.xavier_uniform_(
-        W, gain=1),
-
-    'SELU': lambda W: torch.nn.init.uniform_(
-        W, a=-math.sqrt(3/W.size(1)), b=math.sqrt(3/W.size(1))),
-
+    'Tanh': (
+        torch.nn.init.xavier_uniform_,
+        {'gain': torch.nn.init.calculate_gain('tanh')}
+    ),
+    'Sigmoid': (
+        torch.nn.init.xavier_uniform_,
+        {'gain:': torch.nn.init.calculate_gain('sigmoid')}
+    ),
+    'ReLU6': (
+        torch.nn.init.kaiming_uniform_,
+        {'nonlinearity': 'relu'}
+    ),
+    'Softsign': (
+        torch.nn.init.xavier_uniform_,
+        {'gain': 1}
+    ),
+    'SELU': (
+        torch.nn.init.kaiming_uniform_,
+        {'nonlinearity': 'linear'}
+        # {'a': -math.sqrt(3/W.size(1)), 'b': math.sqrt(3/W.size(1))}
+    ),
     # ELU: The weights have been initialized according to (He et al., 2015).
     #      source: https://arxiv.org/pdf/1511.07289.pdf
-    'ELU': lambda W: torch.nn.init.kaiming_uniform_(
-        W, nonlinearity='relu'),
-
-    'ReLU': lambda W: torch.nn.init.kaiming_uniform_(
-        W, nonlinearity='relu'),
-
-    'linear': lambda W: torch.nn.init.xavier_uniform_(
-        W, gain=torch.nn.init.calculate_gain('linear'))
+    'ELU': (
+        torch.nn.init.kaiming_uniform_,
+        {'nonlinearity': 'relu'}
+    ),
+    'ReLU': (
+        torch.nn.init.kaiming_uniform_,
+        {'nonlinearity': 'relu'}
+    ),
+    'linear': (
+        torch.nn.init.xavier_uniform_,
+        {'gain': torch.nn.init.calculate_gain('linear')}
+    )
 }
+
 
 class BasicLayer(ExtendedTorchModule):
     ACTIVATIONS = set(ACTIVATIONS.keys())
@@ -68,7 +83,8 @@ class BasicLayer(ExtendedTorchModule):
             self.register_parameter('bias', None)
 
     def reset_parameters(self):
-        self.initializer(self.W)
+        func, kwargs = self.initializer
+        func(self.W, **kwargs)
         if self.bias is not None:
             torch.nn.init.zeros_(self.bias)
 
