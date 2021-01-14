@@ -37,6 +37,11 @@ parser.add_argument('--regualizer-oob',
                     default=1,
                     type=float,
                     help='Specify the oob-regualization lambda to be used')
+parser.add_argument('--mnist-regularizer',
+                    action='store',
+                    default=0,
+                    type=float,
+                    help='Specify the MNIST regularization weight to be used')
 parser.add_argument('--mnist-digits',
                     action='store',
                     default=[0,1,2,3,4,5,6,7,8,9],
@@ -56,6 +61,11 @@ parser.add_argument('--model-simplification',
                     type=str,
                     help='Simplifiations applied to the model')
 
+parser.add_argument('--lr',
+                    action='store',
+                    default=1e-3,
+                    type=float,
+                    help='Specify the learning rate for adam to use')
 parser.add_argument('--max-epochs',
                     action='store',
                     default=1000,
@@ -178,10 +188,12 @@ print(f'  - operation: {args.operation}')
 print(f'  - regualizer: {args.regualizer}')
 print(f'  - regualizer_z: {args.regualizer_z}')
 print(f'  - regualizer_oob: {args.regualizer_oob}')
+print(f'  - MNIST regularizer: {args.mnist_regularizer}')
 print(f'  - mnist_digits: {args.mnist_digits}')
 print(f'  - mnist_outputs: {args.mnist_outputs}')
 print(f'  - model_simplification: {args.model_simplification}')
 print(f'  -')
+print(f'  - learning rate: {args.lr}')
 print(f'  - max_epochs: {args.max_epochs}')
 print(f'  - batch_size: {args.batch_size}')
 print(f'  - seed: {args.seed}')
@@ -235,10 +247,11 @@ summary_writer = stable_nalu.writer.SummaryWriter(
     f'_rs-{args.regualizer_scaling}-{args.regualizer_shape}'
     f'_eps-{args.mnac_epsilon}'
     f'_rl-{args.regualizer_scaling_start}-{args.regualizer_scaling_end}'
-    f'_r-{args.regualizer}-{args.regualizer_z}-{args.regualizer_oob}'
+    f'_r-{args.regualizer}-{args.regualizer_z}-{args.regualizer_oob}-{args.mnist_regularizer}'
     f'_m-{"s" if args.softmax_transform else "l"}-{args.model_simplification[0]}'
     f'_i-{args.interpolation_length}'
     f'_e-{"-".join(map(str, args.extrapolation_lengths))}'
+    f'_lr{args.lr}'
     f'_b{args.batch_size}'
     f'_s{args.seed}',
     remove_existing_data=args.remove_existing_data
@@ -258,7 +271,7 @@ dataset = stable_nalu.dataset.SequentialMnistDataset(
     use_cuda=args.cuda,
     seed=args.seed,
     mnist_digits=args.mnist_digits,
-    num_workers=2  # debugging
+    num_workers=0  # debugging
 )
 dataset_train = dataset.fork(seq_length=args.interpolation_length, subset='train').dataloader(shuffle=True)
 # Seeds are from random.org
@@ -297,7 +310,7 @@ model.reset_parameters()
 if args.cuda:
     model.cuda()
 criterion = torch.nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
 seq_index = slice(None) if dataset.get_item_shape().target[0] is None else -1
 
@@ -373,6 +386,7 @@ for epoch_i in range(0, args.max_epochs + 1):
 
         loss_train_criterion = criterion(y_train[:,seq_index,:], t_train[:,seq_index,:])
         loss_train_regualizer = args.regualizer * r_w_scale * regualizers['W'] + regualizers['g'] + args.regualizer_z * regualizers['z'] + args.regualizer_oob * regualizers['W-OOB']
+        loss_train_regualizer += args.mnist_regularizer * torch.mean(torch.abs(mnist_y_train))
         loss_train = loss_train_criterion + loss_train_regualizer
 
         # Log loss
