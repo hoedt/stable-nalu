@@ -2,6 +2,7 @@
 import torch
 
 from .basic import BasicLayer, BasicCell
+from .mclstm import MCLSTMCell
 
 from .nac import NACLayer, NACCell
 from .mnac import MNACLayer, MNACCell
@@ -165,7 +166,7 @@ class GeneralizedCell(ExtendedTorchModule):
         hidden_size: number of outgoing features
         unit_name: name of the unit (e.g. RNN-tanh, LSTM, NAC)
     """
-    UNIT_NAMES = set(unit_name_to_cell_class.keys()) | {'GRU', 'LSTM', 'RNN-tanh', 'RNN-ReLU', 'RNN-linear'}
+    UNIT_NAMES = set(unit_name_to_cell_class.keys()) | {'GRU', 'LSTM', 'MCLSTM', 'RNN-tanh', 'RNN-ReLU', 'RNN-linear'}
 
     def __init__(self, input_size, hidden_size, unit_name, writer=None, **kwags):
         super().__init__('cell', writer=writer, **kwags)
@@ -185,6 +186,8 @@ class GeneralizedCell(ExtendedTorchModule):
             self.cell = torch.nn.GRUCell(input_size, hidden_size)
         elif unit_name == 'LSTM':
             self.cell = torch.nn.LSTMCell(input_size, hidden_size)
+        elif unit_name == 'MCLSTM':
+            self.cell = MCLSTMCell(input_size, hidden_size)
         elif unit_name == 'RNN-tanh':
             self.cell = torch.nn.RNNCell(input_size, hidden_size,
                                          nonlinearity='tanh')

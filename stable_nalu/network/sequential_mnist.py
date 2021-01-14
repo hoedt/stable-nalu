@@ -84,10 +84,10 @@ class SequentialMnistNetwork(ExtendedTorchModule):
                     torch.log(torch.abs(h_tm1) + self.eps)
                 ))
 
-            y_all.append(h_t[0] if self.unit_name == 'LSTM' else h_t)
+            y_all.append(h_t[0] if self.unit_name.endswith('LSTM') else h_t)
             l_all.append(l_t)
 
-            h_tm1 = h_t
+            h_tm1 = h_t[1] if self.unit_name == 'MCLSTM' else h_t
 
         return (
             torch.stack(l_all).transpose(0, 1),
