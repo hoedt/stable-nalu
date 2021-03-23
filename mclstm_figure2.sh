@@ -13,7 +13,21 @@ python experiments/sequential_mnist.py \
   --mnist-regularizer 1e-4 \
   --seed {} \
   --max-epochs 1000 \
-  --name-prefix sequential_mnist \
+  --name-prefix "$EXPNAME" \
+  --remove-existing-data
+
+### LSTM ###
+seq 0 99 | xargs -n1 -P10 -i -- \
+python experiments/sequential_mnist.py \
+  --operation cumsum \
+  --layer-type LSTM \
+  --interpolation-length 10 \
+  --extrapolation-lengths [1,10,100,200,300,400,500,600,700,800,900,1000] \
+  --regualizer 0 \
+  --mnist-regularizer 1e-4 \
+  --seed {} \
+  --max-epochs 1000 \
+  --name-prefix "$EXPNAME" \
   --remove-existing-data
 
 ### NAU ###

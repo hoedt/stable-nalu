@@ -42,6 +42,41 @@ python experiments/simple_function_recurrent.py \
   --seed {} \
   --remove-existing-data
 
+### LSTM ###
+seq 0 99 | xargs -n1 -P10 -i -- \
+python experiments/simple_function_recurrent.py \
+  --operation add \
+  --layer-type LSTM \
+  --learning-rate 1e-2 \
+  --l2-out 1e-4 \
+  --max-iterations 2000000 \
+  --name-prefix "$EXPNAME" \
+  --seed {} \
+  --remove-existing-data
+seq 0 99 | xargs -n1 -P10 -i -- \
+python experiments/simple_function_recurrent.py \
+  --operation sub \
+  --layer-type LSTM \
+  --hidden-size 10 \
+  --learning-rate 1e-2 \
+  --regualizer 0 \
+  --l2-out 1e-4 \
+  --max-iterations 2000000 \
+  --name-prefix "$EXPNAME" \
+  --seed {} \
+  --remove-existing-data
+seq 0 99 | xargs -n1 -P10 -i -- \
+python experiments/simple_function_recurrent.py \
+  --operation mul \
+  --layer-type LSTM \
+  --hidden-size 10 \
+  --learning-rate 1e-2 \
+  --regualizer 0 \
+  --max-iterations 2000000 \
+  --name-prefix "$EXPNAME" \
+  --seed {} \
+  --remove-existing-data
+
 ### NAU / NMU ###
 seq 0 99 | xargs -n1 -P10 -i -- \
 python experiments/simple_function_recurrent.py \
