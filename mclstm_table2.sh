@@ -48,7 +48,7 @@ python experiments/simple_function_recurrent.py \
   --operation add \
   --layer-type LSTM \
   --learning-rate 1e-2 \
-  --l2-out 1e-4 \
+  --l2-out 1e-2 \
   --max-iterations 2000000 \
   --name-prefix "$EXPNAME" \
   --seed {} \
@@ -60,7 +60,7 @@ python experiments/simple_function_recurrent.py \
   --hidden-size 10 \
   --learning-rate 1e-2 \
   --regualizer 0 \
-  --l2-out 1e-4 \
+  --l2-out 1e-2 \
   --max-iterations 2000000 \
   --name-prefix "$EXPNAME" \
   --seed {} \
@@ -72,6 +72,7 @@ python experiments/simple_function_recurrent.py \
   --hidden-size 10 \
   --learning-rate 1e-2 \
   --regualizer 0 \
+  --l2-out 1e-2 \
   --max-iterations 2000000 \
   --name-prefix "$EXPNAME" \
   --seed {} \
